@@ -1,198 +1,252 @@
-﻿using System;
+﻿using OpenTK.Graphics.OpenGL;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
-using OpenTK.Graphics.OpenGL;
 
-namespace Template
+namespace Rasterization;
+
+public class Surface
 {
-    public class Surface
+    private static Surface? _font;
+    private static int[]? _fontRedir;
+    public int[] Pixels;
+
+    public int Width, Height;
+
+    // surface constructor
+    public Surface(int w, int h)
     {
-        public int width, height;
-        public int[] pixels;
-        static Surface? font;
-        static int[]? fontRedir;
-        // surface constructor
-        public Surface(int w, int h)
+        Width = w;
+        Height = h;
+        Pixels = new int[w * h];
+    }
+
+    // surface constructor using a file
+    public Surface(string fileName)
+    {
+        var bmp = Image.Load<Bgra32>(fileName);
+        Width = bmp.Width;
+        Height = bmp.Height;
+        Pixels = new int[Width * Height];
+        for (var y = 0; y < Height; y++)
+        for (var x = 0; x < Width; x++)
+            Pixels[y * Width + x] = (int)bmp[x, y].Bgra;
+    }
+
+    // create an OpenGL texture
+    public int GenTexture()
+    {
+        var id = GL.GenTexture();
+        GL.BindTexture(TextureTarget.Texture2D, id);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, Width, Height, 0, PixelFormat.Bgra,
+            PixelType.UnsignedByte, Pixels);
+        return id;
+    }
+
+    // clear the surface
+    public void Clear(int c)
+    {
+        for (int s = Width * Height, p = 0; p < s; p++) Pixels[p] = c;
+    }
+
+    // copy the surface to another surface
+    public void CopyTo(Surface target, int x = 0, int y = 0)
+    {
+        var src = 0;
+        var dst = 0;
+        var srcWidth = Width;
+        var srcHeight = Height;
+        var dstWidth = target.Width;
+        var dstHeight = target.Height;
+        if (srcWidth + x > dstWidth) srcWidth = dstWidth - x;
+        if (srcHeight + y > dstHeight) srcHeight = dstHeight - y;
+        if (x < 0)
         {
-            width = w;
-            height = h;
-            pixels = new int[w * h];
+            src -= x;
+            srcWidth += x;
+            x = 0;
         }
-        // surface constructor using a file
-        public Surface(string fileName)
+
+        if (y < 0)
         {
-            Image<Bgra32> bmp = Image.Load<Bgra32>(fileName);
-            width = bmp.Width;
-            height = bmp.Height;
-            pixels = new int[width * height];
-            for (int y = 0; y < height; y++)
-                for (int x = 0; x < width; x++)
-                    pixels[y * width + x] = (int)bmp[x, y].Bgra;
+            src -= y * Width;
+            srcHeight += y;
+            y = 0;
         }
-        // create an OpenGL texture
-        public int GenTexture()
+
+        if (srcWidth > 0 && srcHeight > 0)
         {
-            int id = GL.GenTexture();
-            GL.BindTexture(TextureTarget.Texture2D, id);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, width, height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, pixels);
-            return id;
-        }
-        // clear the surface
-        public void Clear(int c)
-        {
-            for (int s = width * height, p = 0; p < s; p++) pixels[p] = c;
-        }
-        // copy the surface to another surface
-        public void CopyTo(Surface target, int x = 0, int y = 0)
-        {
-            int src = 0;
-            int dst = 0;
-            int srcwidth = width;
-            int srcheight = height;
-            int dstwidth = target.width;
-            int dstheight = target.height;
-            if ((srcwidth + x) > dstwidth) srcwidth = dstwidth - x;
-            if ((srcheight + y) > dstheight) srcheight = dstheight - y;
-            if (x < 0)
+            dst += x + dstWidth * y;
+            for (var v = 0; v < srcHeight; v++)
             {
-                src -= x;
-                srcwidth += x;
-                x = 0;
-            }
-            if (y < 0)
-            {
-                src -= y * width;
-                srcheight += y;
-                y = 0;
-            }
-            if ((srcwidth > 0) && (srcheight > 0))
-            {
-                dst += x + dstwidth * y;
-                for (int v = 0; v < srcheight; v++)
-                {
-                    for (int u = 0; u < srcwidth; u++) target.pixels[dst + u] = pixels[src + u];
-                    dst += dstwidth;
-                    src += width;
-                }
-            }
-        }
-        // draw a rectangle
-        public void Box(int x1, int y1, int x2, int y2, int c)
-        {
-            int dest = y1 * width;
-            for (int y = y1; y <= y2; y++, dest += width)
-            {
-                pixels[dest + x1] = c;
-                pixels[dest + x2] = c;
-            }
-            int dest1 = y1 * width;
-            int dest2 = y2 * width;
-            for (int x = x1; x <= x2; x++)
-            {
-                pixels[dest1 + x] = c;
-                pixels[dest2 + x] = c;
+                for (var u = 0; u < srcWidth; u++) target.Pixels[dst + u] = Pixels[src + u];
+                dst += dstWidth;
+                src += Width;
             }
         }
-        // draw a solid bar
-        public void Bar(int x1, int y1, int x2, int y2, int c)
+    }
+
+    // draw a rectangle
+    public void Box(int x1, int y1, int x2, int y2, int c)
+    {
+        var dest = y1 * Width;
+        for (var y = y1; y <= y2; y++, dest += Width)
         {
-            int dest = y1 * width;
-            for (int y = y1; y <= y2; y++, dest += width) for (int x = x1; x <= x2; x++)
-                {
-                    pixels[dest + x] = c;
-                }
+            Pixels[dest + x1] = c;
+            Pixels[dest + x2] = c;
         }
-        // helper function for line clipping
-        int OUTCODE(int x, int y)
+
+        var dest1 = y1 * Width;
+        var dest2 = y2 * Width;
+        for (var x = x1; x <= x2; x++)
         {
-            int xmin = 0, ymin = 0, xmax = width - 1, ymax = height - 1;
-            return ((x < xmin) ? 1 : ((x > xmax) ? 2 : 0)) + ((y < ymin) ? 4 : ((y > ymax) ? 8 : 0));
+            Pixels[dest1 + x] = c;
+            Pixels[dest2 + x] = c;
         }
-        // draw a line, clipped to the window
-        public void Line(int x1, int y1, int x2, int y2, int c)
-        {
-            int xmin = 0, ymin = 0, xmax = width - 1, ymax = height - 1;
-            int c0 = OUTCODE(x1, y1), c1 = OUTCODE(x2, y2);
-            bool accept = false;
-            while (true)
+    }
+
+    // draw a solid bar
+    public void Bar(int x1, int y1, int x2, int y2, int c)
+    {
+        var dest = y1 * Width;
+        for (var y = y1; y <= y2; y++, dest += Width)
+        for (var x = x1; x <= x2; x++)
+            Pixels[dest + x] = c;
+    }
+
+    // helper function for line clipping
+    private int Outcode(int x, int y)
+    {
+        int xMin = 0, yMin = 0, xMax = Width - 1, yMax = Height - 1;
+        return (x < xMin ? 1 : x > xMax ? 2 : 0) + (y < yMin ? 4 : y > yMax ? 8 : 0);
+    }
+
+    // draw a line, clipped to the window
+    public void Line(int x1, int y1, int x2, int y2, int c)
+    {
+        int xMin = 0, yMin = 0, xMax = Width - 1, yMax = Height - 1;
+        int c0 = Outcode(x1, y1), c1 = Outcode(x2, y2);
+        var accept = false;
+        while (true)
+            if (c0 == 0 && c1 == 0)
             {
-                if (c0 == 0 && c1 == 0) { accept = true; break; }
-                else if ((c0 & c1) > 0) break;
-                else
-                {
-                    int x = 0, y = 0;
-                    int co = (c0 > 0) ? c0 : c1;
-                    if ((co & 8) > 0) { x = x1 + (x2 - x1) * (ymax - y1) / (y2 - y1); y = ymax; }
-                    else if ((co & 4) > 0) { x = x1 + (x2 - x1) * (ymin - y1) / (y2 - y1); y = ymin; }
-                    else if ((co & 2) > 0) { y = y1 + (y2 - y1) * (xmax - x1) / (x2 - x1); x = xmax; }
-                    else if ((co & 1) > 0) { y = y1 + (y2 - y1) * (xmin - x1) / (x2 - x1); x = xmin; }
-                    if (co == c0) { x1 = x; y1 = y; c0 = OUTCODE(x1, y1); }
-                    else { x2 = x; y2 = y; c1 = OUTCODE(x2, y2); }
-                }
+                accept = true;
+                break;
             }
-            if (!accept) return;
-            if (Math.Abs(x2 - x1) >= Math.Abs(y2 - y1))
+            else if ((c0 & c1) > 0)
             {
-                if (x2 < x1) { (x2, x1) = (x1, x2); (y2, y1) = (y1, y2); }
-                int l = x2 - x1;
-                if (l == 0) return;
-                int dy = ((y2 - y1) * 8192) / l;
-                y1 *= 8192;
-                for (int i = 0; i < l; i++)
-                {
-                    pixels[x1++ + (y1 / 8192) * width] = c;
-                    y1 += dy;
-                }
+                break;
             }
             else
             {
-                if (y2 < y1) { (x2, x1) = (x1, x2); (y2, y1) = (y1, y2); }
-                int l = y2 - y1;
-                if (l == 0) return;
-                int dx = ((x2 - x1) * 8192) / l;
-                x1 *= 8192;
-                for (int i = 0; i < l; i++)
+                int x = 0, y = 0;
+                var co = c0 > 0 ? c0 : c1;
+                if ((co & 8) > 0)
                 {
-                    pixels[x1 / 8192 + y1++ * width] = c;
-                    x1 += dx;
+                    x = x1 + (x2 - x1) * (yMax - y1) / (y2 - y1);
+                    y = yMax;
+                }
+                else if ((co & 4) > 0)
+                {
+                    x = x1 + (x2 - x1) * (yMin - y1) / (y2 - y1);
+                    y = yMin;
+                }
+                else if ((co & 2) > 0)
+                {
+                    y = y1 + (y2 - y1) * (xMax - x1) / (x2 - x1);
+                    x = xMax;
+                }
+                else if ((co & 1) > 0)
+                {
+                    y = y1 + (y2 - y1) * (xMin - x1) / (x2 - x1);
+                    x = xMin;
+                }
+
+                if (co == c0)
+                {
+                    x1 = x;
+                    y1 = y;
+                    c0 = Outcode(x1, y1);
+                }
+                else
+                {
+                    x2 = x;
+                    y2 = y;
+                    c1 = Outcode(x2, y2);
                 }
             }
-        }
-        // plot a single pixel
-        public void Plot(int x, int y, int c)
+
+        if (!accept) return;
+        if (Math.Abs(x2 - x1) >= Math.Abs(y2 - y1))
         {
-            if ((x >= 0) && (y >= 0) && (x < width) && (y < height))
+            if (x2 < x1)
             {
-                pixels[x + y * width] = c;
+                (x2, x1) = (x1, x2);
+                (y2, y1) = (y1, y2);
+            }
+
+            var l = x2 - x1;
+            if (l == 0) return;
+            var dy = (y2 - y1) * 8192 / l;
+            y1 *= 8192;
+            for (var i = 0; i < l; i++)
+            {
+                Pixels[x1++ + y1 / 8192 * Width] = c;
+                y1 += dy;
             }
         }
-        // print a string
-        public void Print(string t, int x, int y, int c)
+        else
         {
-            if (font == null || fontRedir == null)
+            if (y2 < y1)
             {
-                font = new Surface("../../../assets/font.png");
-                string ch = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_-+={}[];:<>,.?/\\ ";
-                fontRedir = new int[256];
-                for (int i = 0; i < 256; i++) fontRedir[i] = 0;
-                for (int i = 0; i < ch.Length; i++)
-                {
-                    int l = (int)ch[i];
-                    fontRedir[l & 255] = i;
-                }
+                (x2, x1) = (x1, x2);
+                (y2, y1) = (y1, y2);
             }
-            for (int i = 0; i < t.Length; i++)
+
+            var l = y2 - y1;
+            if (l == 0) return;
+            var dx = (x2 - x1) * 8192 / l;
+            x1 *= 8192;
+            for (var i = 0; i < l; i++)
             {
-                int f = fontRedir[(int)t[i] & 255];
-                int dest = x + i * 12 + y * width;
-                int src = f * 12;
-                for (int v = 0; v < font.height; v++, src += font.width, dest += width) for (int u = 0; u < 12; u++)
-                    {
-                        if ((font.pixels[src + u] & 0xffffff) != 0) pixels[dest + u] = c;
-                    }
+                Pixels[x1 / 8192 + y1++ * Width] = c;
+                x1 += dx;
             }
+        }
+    }
+
+    // plot a single pixel
+    public void Plot(int x, int y, int c)
+    {
+        if (x >= 0 && y >= 0 && x < Width && y < Height) Pixels[x + y * Width] = c;
+    }
+
+    // print a string
+    public void Print(string t, int x, int y, int c)
+    {
+        if (_font == null || _fontRedir == null)
+        {
+            _font = new Surface("../../../assets/font.png");
+            var ch = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_-+={}[];:<>,.?/\\ ";
+            _fontRedir = new int[256];
+            for (var i = 0; i < 256; i++) _fontRedir[i] = 0;
+            for (var i = 0; i < ch.Length; i++)
+            {
+                int l = ch[i];
+                _fontRedir[l & 255] = i;
+            }
+        }
+
+        for (var i = 0; i < t.Length; i++)
+        {
+            var f = _fontRedir[t[i] & 255];
+            var dest = x + i * 12 + y * Width;
+            var src = f * 12;
+            for (var v = 0; v < _font.Height; v++, src += _font.Width, dest += Width)
+            for (var u = 0; u < 12; u++)
+                if ((_font.Pixels[src + u] & 0xffffff) != 0)
+                    Pixels[dest + u] = c;
         }
     }
 }
