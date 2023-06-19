@@ -63,8 +63,8 @@ internal class MyApplication
         var angle90degrees = MathF.PI / 2;
         var teapotObjectToWorld = Matrix4.CreateScale(0.5f) * Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), _a);
         var floorObjectToWorld = Matrix4.CreateScale(4.0f) * Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), _a);
-        var worldToCamera = Matrix4.CreateTranslation(new Vector3(0, -14.5f, 0)) *
-                            Matrix4.CreateFromAxisAngle(new Vector3(1, 0, 0), angle90degrees);
+        var worldToCamera = Matrix4.CreateTranslation(0.0f, -10.0f, -8.0f) *
+                            Matrix4.CreateRotationX(angle90degrees / 2.0f);
         var cameraToScreen = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(60.0f),
             (float)Screen.Width / Screen.Height, .1f, 1000);
 
