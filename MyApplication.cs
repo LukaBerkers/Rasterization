@@ -16,6 +16,10 @@ internal class MyApplication
     private Mesh? _teapot, _floor; // meshes to draw using OpenGL
     private Texture? _wood; // texture to use for rendering
 
+
+    private Node TPOT;
+    private Node FLOOR;
+
     // member variables
     public Surface Screen; // background surface for printing etc.
 
@@ -28,6 +32,8 @@ internal class MyApplication
     // initialize
     public void Init()
     {
+        
+
         // load teapot
         _teapot = new Mesh("../../../assets/teapot.obj");
         _floor = new Mesh("../../../assets/floor.obj");
@@ -38,10 +44,12 @@ internal class MyApplication
         _shader = new Shader("../../../shaders/vs.glsl", "../../../shaders/fs.glsl");
         _postProc = new Shader("../../../shaders/vs_post.glsl", "../../../shaders/fs_post.glsl");
         // load a texture
-        _wood = new Texture("../../../assets/wood.jpg");
+        _wood = new Texture(/*"../../../assets/wood.jpg"*/"C://Users//Mitchell Zhu//Documents//GitHub//Rasterization//assets//john xina.jpeg");
         // create the render target
         if (_useRenderTarget) _target = new RenderTarget(Screen.Width, Screen.Height);
         _quad = new ScreenQuad();
+
+       
     }
 
     // tick for background surface
@@ -68,6 +76,9 @@ internal class MyApplication
         var cameraToScreen = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(60.0f),
             (float)Screen.Width / Screen.Height, .1f, 1000);
 
+        TPOT = new Node(teapotObjectToWorld, _teapot, _shader, _wood);
+        FLOOR = new Node(floorObjectToWorld, _floor, _shader, _wood);
+
         // update rotation
         _a += 0.001f * frameDuration;
         if (_a > 2 * MathF.PI) _a -= 2 * MathF.PI;
@@ -80,9 +91,11 @@ internal class MyApplication
             // render scene to render target
             if (_shader != null && _wood != null)
             {
-                _teapot?.Render(_shader, teapotObjectToWorld * worldToCamera * cameraToScreen, teapotObjectToWorld,
-                    _wood);
-                _floor?.Render(_shader, floorObjectToWorld * worldToCamera * cameraToScreen, floorObjectToWorld, _wood);
+                /* _teapot?.Render(_shader, teapotObjectToWorld * worldToCamera * cameraToScreen, teapotObjectToWorld,
+                     _wood);*/
+                TPOT.render(worldToCamera * cameraToScreen, Matrix4.Identity);
+               /* _floor?.Render(_shader, floorObjectToWorld * worldToCamera * cameraToScreen, floorObjectToWorld, _wood);*/
+               FLOOR.render(worldToCamera * cameraToScreen, Matrix4.Identity);
             }
 
             // render quad
@@ -95,9 +108,11 @@ internal class MyApplication
             // render scene directly to the screen
             if (_shader != null && _wood != null)
             {
-                _teapot?.Render(_shader, teapotObjectToWorld * worldToCamera * cameraToScreen, teapotObjectToWorld,
-                    _wood);
-                _floor?.Render(_shader, floorObjectToWorld * worldToCamera * cameraToScreen, floorObjectToWorld, _wood);
+                /*_teapot?.Render(_shader, teapotObjectToWorld * worldToCamera * cameraToScreen, teapotObjectToWorld,
+                    _wood);*/
+                TPOT.render(worldToCamera * cameraToScreen, Matrix4.Identity);
+                /*_floor?.Render(_shader, floorObjectToWorld * worldToCamera * cameraToScreen, floorObjectToWorld, _wood);*/
+                FLOOR.render(worldToCamera * cameraToScreen , Matrix4.Identity);
             }
         }
     }
