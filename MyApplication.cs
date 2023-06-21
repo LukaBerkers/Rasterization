@@ -16,13 +16,15 @@ internal class MyApplication
     private Mesh? _teapot, _floor; // meshes to draw using OpenGL
     private Texture? _wood; // texture to use for rendering
 
-    // member variables
     public Surface Screen; // background surface for printing etc.
+
+    private Camera _camera;
 
     // constructor
     public MyApplication(Surface screen)
     {
         Screen = screen;
+        _camera = new Camera((0.0f, 6.0f, 8.0f), new Vector3(0.0f, 0.0f, -1.0f).Normalized());
     }
 
     // initialize
@@ -63,8 +65,7 @@ internal class MyApplication
         var angle90degrees = MathF.PI / 2;
         var teapotObjectToWorld = Matrix4.CreateScale(0.5f) * Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), _a);
         var floorObjectToWorld = Matrix4.CreateScale(4.0f) * Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), _a);
-        var worldToCamera = Matrix4.CreateTranslation(0.0f, -10.0f, -8.0f) *
-                            Matrix4.CreateRotationX(angle90degrees / 2.0f);
+        var worldToCamera = _camera.Transformation();
         var cameraToScreen = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(60.0f),
             (float)Screen.Width / Screen.Height, .1f, 1000);
 
