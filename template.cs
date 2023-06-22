@@ -38,7 +38,7 @@ public class OpenTKApp : GameWindow
     public OpenTKApp()
         : base(GameWindowSettings.Default, new NativeWindowSettings
         {
-            Size = new Vector2i(640, 360),
+            Size = new Vector2i(960, 540),
             Profile = AllowPrehistoricOpenGl
                 ? ContextProfile.Compatability
                 : ContextProfile.Core, // required for fixed-function, which is probably not supported on MacOS
@@ -123,6 +123,7 @@ public class OpenTKApp : GameWindow
 
         _quad = new ScreenQuad();
         _screenShader = new Shader("../../../shaders/screen_vs.glsl", "../../../shaders/screen_fs.glsl");
+        CursorGrabbed = true;
         _app.Init();
     }
 
@@ -151,7 +152,8 @@ public class OpenTKApp : GameWindow
         base.OnUpdateFrame(e);
         // called once per frame; app logic
         var keyboard = KeyboardState;
-        _app?.Update(keyboard);
+        var mouseDelta = MouseState.Delta;
+        _app?.Update(keyboard, mouseDelta);
         if (keyboard[Keys.Escape]) _terminated = true;
     }
 

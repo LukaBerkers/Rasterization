@@ -6,7 +6,6 @@ namespace Rasterization;
 
 internal class MyApplication
 {
-    private const float MoveSpeed = 1.0f / 4096.0f;
     private readonly Camera _camera;
     private readonly Stopwatch _timer = new(); // timer for measuring frame duration
     private readonly bool _useRenderTarget = true; // required for post processing
@@ -54,8 +53,11 @@ internal class MyApplication
         Screen.Print("hello world", 2, 2, 0xffff00);
     }
 
-    public void Update(KeyboardState keyboardState)
+    public void Update(KeyboardState keyboardState, Vector2 mouseDelta)
     {
+        const float moveSpeed = 1.0f / 4096.0f;
+        const float rotateSpeed = 1.0f / 1024.0f;
+        
         Camera.MoveDirection? direction = null;
         if (keyboardState[Keys.W])
             direction = Camera.MoveDirection.Forwards;
@@ -65,7 +67,9 @@ internal class MyApplication
             direction = Camera.MoveDirection.Left;
         else if (keyboardState[Keys.D]) direction = Camera.MoveDirection.Right;
 
-        if (direction.HasValue) _camera.Move((Camera.MoveDirection)direction, MoveSpeed);
+        if (direction.HasValue) _camera.Move((Camera.MoveDirection)direction, moveSpeed);
+        _camera.Pan(mouseDelta.X * rotateSpeed);
+        _camera.Tilt(mouseDelta.Y * rotateSpeed);
     }
 
     // tick for OpenGL rendering code
