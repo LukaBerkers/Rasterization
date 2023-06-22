@@ -1,43 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 
-namespace Rasterization
+namespace Rasterization;
+
+public class Node
 {
-    public class Node
+    // Node world;
+    private readonly List<Node> _children;
+    private readonly Mesh? _mesh;
+    private readonly Matrix4 _objectToParent;
+    private readonly Shader _shade;
+    private readonly Texture? _texture;
+
+    public Node(Matrix4 objectToParent, Mesh? mesh, Shader shade, Texture? texture, List<Node> children)
     {
-        Matrix4 ObjectToParent;
-        Mesh? mesh;
-        Shader shade;
-        Texture? texture;
-        //Node world;
-        List<Node> children;
-        public Node(Matrix4 ObjectToParent, Mesh? mesh, Shader shade, Texture? texture, List<Node> children)
-        {
-            this.ObjectToParent = ObjectToParent;
-            this.mesh = mesh;
-            this.shade = shade;
-            this.texture = texture;
-            this.children = children;
-        }
+        _objectToParent = objectToParent;
+        _mesh = mesh;
+        _shade = shade;
+        _texture = texture;
+        _children = children;
+    }
 
-        public void render(Matrix4 WorldToScreen, Matrix4 ParentToWorld)
-        {
-            Matrix4 ObjectToWorld = ObjectToParent * ParentToWorld;
-            Matrix4 ObjectToScreen = ObjectToWorld * WorldToScreen;
-            if(mesh != null || texture != null) // null error
-            {
-                mesh.Render(shade, ObjectToScreen, ObjectToWorld, texture);
-            }
-            
+    public void Render(Matrix4 worldToScreen, Matrix4 parentToWorld)
+    {
+        var objectToWorld = _objectToParent * parentToWorld;
+        var objectToScreen = objectToWorld * worldToScreen;
+        if (_mesh != null || _texture != null) // null error
+            _mesh.Render(_shade, objectToScreen, objectToWorld, _texture);
 
-            foreach(var child in children)
-            {
-                child.render(ObjectToScreen, ObjectToWorld);
-            }
-        }
+        foreach (var child in _children) child.Render(objectToScreen, objectToWorld);
     }
 }

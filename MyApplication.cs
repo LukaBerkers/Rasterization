@@ -103,7 +103,7 @@ internal class MyApplication
         FLOOR = new Node(floorObjectToWorld, _floor, _shader, _wood, null);
         var children = new List<Node> { TPOT, FLOOR };
         World = new Node(Matrix4.Identity, null, _shader, null, children);
-        World.render(worldToCamera, Matrix4.Identity);
+        World.Render(worldToCamera, Matrix4.Identity);
 
         // update rotation
         _a += 0.001f * frameDuration;
@@ -119,10 +119,10 @@ internal class MyApplication
             {
                 // _teapot?.Render(_shader, teapotObjectToWorld * worldToCamera * cameraToScreen, teapotObjectToWorld,
                 //      _wood);
-                TPOT.render(worldToCamera * cameraToScreen, Matrix4.Identity);
+                TPOT.Render(worldToCamera * cameraToScreen, Matrix4.Identity);
                 //  TPOT2.render(worldToCamera * cameraToScreen, Matrix4.Identity);
                 // _floor?.Render(_shader, floorObjectToWorld * worldToCamera * cameraToScreen, floorObjectToWorld, _wood);
-                FLOOR.render(worldToCamera * cameraToScreen, Matrix4.Identity);
+                FLOOR.Render(worldToCamera * cameraToScreen, Matrix4.Identity);
             }
 
             // render quad
@@ -137,10 +137,10 @@ internal class MyApplication
             {
                 // _teapot?.Render(_shader, teapotObjectToWorld * worldToCamera * cameraToScreen, teapotObjectToWorld,
                 //     _wood);
-                TPOT.render(worldToCamera * cameraToScreen, Matrix4.Identity);
+                TPOT.Render(worldToCamera * cameraToScreen, Matrix4.Identity);
                 // TPOT2.render(worldToCamera * cameraToScreen, Matrix4.Identity);
                 // _floor?.Render(_shader, floorObjectToWorld * worldToCamera * cameraToScreen, floorObjectToWorld, _wood);
-                FLOOR.render(worldToCamera * cameraToScreen, Matrix4.Identity);
+                FLOOR.Render(worldToCamera * cameraToScreen, Matrix4.Identity);
             }
         }
     }
