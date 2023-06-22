@@ -10,11 +10,12 @@ namespace Rasterization
     public class Node
     {
         Matrix4 ObjectToParent;
-        Mesh mesh;
+        Mesh? mesh;
         Shader shade;
-        Texture texture;
-        List<Node> children = new List<Node>();
-        public Node(Matrix4 ObjectToParent, Mesh mesh, Shader shade, Texture texture/*, List<Node> children*/)
+        Texture? texture;
+        //Node world;
+        List<Node> children;
+        public Node(Matrix4 ObjectToParent, Mesh? mesh, Shader shade, Texture? texture, List<Node> children)
         {
             this.ObjectToParent = ObjectToParent;
             this.mesh = mesh;
@@ -27,7 +28,11 @@ namespace Rasterization
         {
             Matrix4 ObjectToWorld = ObjectToParent * ParentToWorld;
             Matrix4 ObjectToScreen = ObjectToWorld * WorldToScreen;
-            mesh.Render(shade,ObjectToScreen, ObjectToWorld,texture);
+            if(mesh != null || texture != null) // null error
+            {
+                mesh.Render(shade, ObjectToScreen, ObjectToWorld, texture);
+            }
+            
 
             foreach(var child in children)
             {
