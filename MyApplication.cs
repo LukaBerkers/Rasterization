@@ -1,10 +1,13 @@
 using System.Diagnostics;
 using OpenTK.Mathematics;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace Rasterization;
 
 internal class MyApplication
 {
+    private const float MoveSpeed = 1.0f / 4096.0f;
+    private readonly Camera _camera;
     private readonly Stopwatch _timer = new(); // timer for measuring frame duration
     private readonly bool _useRenderTarget = true; // required for post processing
     private float _a; // teapot rotation angle
@@ -18,13 +21,11 @@ internal class MyApplication
 
     public Surface Screen; // background surface for printing etc.
 
-    private Camera _camera;
-
     // constructor
     public MyApplication(Surface screen)
     {
         Screen = screen;
-        _camera = new Camera((0.0f, 6.0f, 8.0f), new Vector3(0.0f, 0.0f, -1.0f).Normalized());
+        _camera = new Camera((0.0f, 6.0f, 8.0f), new Vector3(0.0f, 0.0f, -1.0f));
     }
 
     // initialize
@@ -53,6 +54,20 @@ internal class MyApplication
         Screen.Print("hello world", 2, 2, 0xffff00);
     }
 
+    public void Update(KeyboardState keyboardState)
+    {
+        Camera.MoveDirection? direction = null;
+        if (keyboardState[Keys.W])
+            direction = Camera.MoveDirection.Forwards;
+        else if (keyboardState[Keys.S])
+            direction = Camera.MoveDirection.Backwards;
+        else if (keyboardState[Keys.A])
+            direction = Camera.MoveDirection.Left;
+        else if (keyboardState[Keys.D]) direction = Camera.MoveDirection.Right;
+
+        if (direction.HasValue) _camera.Move((Camera.MoveDirection)direction, MoveSpeed);
+    }
+
     // tick for OpenGL rendering code
     public void RenderGl()
     {
@@ -64,7 +79,7 @@ internal class MyApplication
         // prepare matrix for vertex shader
         var angle90degrees = MathF.PI / 2;
         var teapotObjectToWorld = Matrix4.CreateScale(0.5f) * Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), _a);
-        var floorObjectToWorld = Matrix4.CreateScale(4.0f) * Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), _a);
+        var floorObjectToWorld = Matrix4.CreateScale(4.0f); //* Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), _a);
         var worldToCamera = _camera.Transformation();
         var cameraToScreen = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(60.0f),
             (float)Screen.Width / Screen.Height, .1f, 1000);

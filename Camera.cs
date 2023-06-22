@@ -4,16 +4,37 @@ namespace Rasterization;
 
 internal class Camera
 {
+    public enum MoveDirection
+    {
+        Forwards,
+        Backwards,
+        Left,
+        Right
+    }
+
+    private static readonly Matrix4 YToNegZ = Matrix4.CreateRotationX(-MathHelper.PiOver2);
+    private Vector3 _lookAt;
+
     public Camera(Vector3 position, Vector3 lookAt)
     {
         Position = position;
-        LookAt = lookAt;
+        _lookAt = lookAt.Normalized();
+        Right = Vector3.Cross(_lookAt, Vector3.UnitY);
     }
 
-    public Vector3 Position { get; }
-    public Vector3 LookAt { get; }
+    public Vector3 Position { get; private set; }
 
-    private static readonly Matrix4 YToNegZ = Matrix4.CreateRotationX(-MathHelper.PiOver2);
+    public Vector3 LookAt
+    {
+        get => _lookAt;
+        private set
+        {
+            _lookAt = value.Normalized();
+            Right = Vector3.Cross(_lookAt, Vector3.UnitY);
+        }
+    }
+
+    public Vector3 Right { get; private set; }
 
     public Matrix4 Transformation()
     {
@@ -31,5 +52,19 @@ internal class Camera
                 Vector3.CalculateAngle(LookAt, Vector3.UnitY)
             );
         return translation * rotation;
+    }
+
+    public void Move(MoveDirection direction, float speed)
+    {
+        var offset = direction switch
+        {
+            MoveDirection.Forwards => LookAt,
+            MoveDirection.Backwards => -LookAt,
+            MoveDirection.Left => -Right,
+            MoveDirection.Right => Right,
+            _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null)
+        };
+
+        Position += speed * offset;
     }
 }

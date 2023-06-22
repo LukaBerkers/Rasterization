@@ -151,6 +151,7 @@ public class OpenTKApp : GameWindow
         base.OnUpdateFrame(e);
         // called once per frame; app logic
         var keyboard = KeyboardState;
+        _app?.Update(keyboard);
         if (keyboard[Keys.Escape]) _terminated = true;
     }
 
