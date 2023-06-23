@@ -70,7 +70,12 @@ internal class MyApplication
             direction = Camera.MoveDirection.Backwards;
         else if (keyboardState[Keys.A])
             direction = Camera.MoveDirection.Left;
-        else if (keyboardState[Keys.D]) direction = Camera.MoveDirection.Right;
+        else if (keyboardState[Keys.D])
+            direction = Camera.MoveDirection.Right;
+        else if (keyboardState[Keys.Space])
+            direction = Camera.MoveDirection.Up;
+        else if (keyboardState[Keys.LeftShift] || keyboardState[Keys.RightShift])
+            direction = Camera.MoveDirection.Down;
 
         if (direction.HasValue) _camera.Move((Camera.MoveDirection)direction, moveSpeed);
         _camera.Pan(mouseDelta.X * rotateSpeed);
@@ -89,7 +94,7 @@ internal class MyApplication
         _world?.Update(frameDuration);
 
         // prepare matrix for vertex shader
-        var worldToCamera = _camera.Transformation();
+        var worldToCamera = _camera.Transformation;
         var cameraToScreen = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(60.0f),
             (float)Screen.Width / Screen.Height, .1f, 1000);
 
