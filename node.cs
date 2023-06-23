@@ -4,29 +4,37 @@ namespace Rasterization;
 
 public class Node
 {
-    // Node world;
-    private readonly List<Node> _children;
-    private readonly Mesh? _mesh;
-    private readonly Matrix4 _objectToParent;
-    private readonly Shader _shade;
-    private readonly Texture? _texture;
+    private readonly ISceneObject? _obj;
+    private readonly Shader _shader;
 
-    public Node(Matrix4 objectToParent, Mesh? mesh, Shader shade, Texture? texture, List<Node> children)
+    public Node(ISceneObject? obj, Shader shader, List<Node>? children = null)
     {
-        _objectToParent = objectToParent;
-        _mesh = mesh;
-        _shade = shade;
-        _texture = texture;
-        _children = children;
+        _obj = obj;
+        _shader = shader;
+        Children = children ?? new List<Node>();
+    }
+
+    // Node world;
+    public List<Node> Children { get; }
+
+    public void Update(float frameDuration)
+    {
+        _obj?.Update(frameDuration);
+        foreach (var child in Children) child.Update(frameDuration);
     }
 
     public void Render(Matrix4 worldToScreen, Matrix4 parentToWorld)
     {
-        var objectToWorld = _objectToParent * parentToWorld;
+        var objectToParent = _obj?.ObjectTransformation ?? Matrix4.Identity;
+        var objectToWorld = objectToParent * parentToWorld;
         var objectToScreen = objectToWorld * worldToScreen;
-        if (_mesh != null || _texture != null) // null error
-            _mesh.Render(_shade, objectToScreen, objectToWorld, _texture);
+        _obj?.Mesh.Render(_shader, objectToScreen, objectToWorld, _obj.Texture);
 
-        foreach (var child in _children) child.Render(objectToScreen, objectToWorld);
+        foreach (var child in Children) child.Render(objectToScreen, objectToWorld);
+    }
+
+    public void AddChild(ISceneObject? obj, Shader shader, List<Node>? children = null)
+    {
+        Children.Add(new Node(obj, shader, children));
     }
 }
