@@ -12,22 +12,30 @@ public interface ISceneObject
 
 public class Teapot : ISceneObject
 {
+    private readonly Vector3 _position;
+    private readonly bool _rotate;
+    private readonly float _scale;
+
     private float _angle;
 
-    public Teapot(Mesh mesh, Texture texture)
+    public Teapot(Mesh mesh, Texture texture, float scale, Vector3 position, bool rotate = true)
     {
         Mesh = mesh;
         Texture = texture;
+        _scale = scale;
+        _position = position;
+        _rotate = rotate;
     }
 
     public Mesh Mesh { get; }
     public Texture Texture { get; }
 
     public Matrix4 ObjectTransformation =>
-        Matrix4.CreateScale(0.5f) * Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), _angle);
+        Matrix4.CreateScale(_scale) * Matrix4.CreateRotationY(_angle) * Matrix4.CreateTranslation(_position);
 
     public void Update(float frameDuration)
     {
+        if (!_rotate) return;
         _angle += 0.001f * frameDuration;
         if (_angle > 2 * MathF.PI) _angle -= 2 * MathF.PI;
     }

@@ -44,11 +44,20 @@ internal class MyApplication
         if (_useRenderTarget) _target = new RenderTarget(Screen.Width, Screen.Height);
         _quad = new ScreenQuad();
 
-        var teapot = new Teapot(teapotMesh, wood);
+        var teapot = new Teapot(teapotMesh, wood, 0.5f, (4.0f, 0.0f, 0.0f));
+        var smallTeapot = new Teapot(teapotMesh, wood, 0.5f, (8.0f, 0.0f, 0.0f), false);
         var floor = new Floor(floorMesh, wood);
-        _world = new Node(null, shader);
-        _world.AddChild(teapot, shader);
-        _world.AddChild(floor, shader);
+        _world = new Node(null, shader)
+        {
+            Children =
+            {
+                new Node(teapot, shader)
+                {
+                    Children = { new Node(smallTeapot, shader) }
+                },
+                new Node(floor, shader)
+            }
+        };
     }
 
     // tick for background surface

@@ -32,9 +32,4 @@ public class Node
 
         foreach (var child in Children) child.Render(worldToScreen, objectToWorld);
     }
-
-    public void AddChild(ISceneObject? obj, Shader shader, List<Node>? children = null)
-    {
-        Children.Add(new Node(obj, shader, children));
-    }
 }
