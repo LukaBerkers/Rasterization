@@ -44,8 +44,9 @@ internal class MyApplication
         if (_useRenderTarget) _target = new RenderTarget(Screen.Width, Screen.Height);
         _quad = new ScreenQuad();
 
-        var teapot = new Teapot(teapotMesh, wood, 0.5f, (4.0f, 0.0f, 0.0f));
-        var smallTeapot = new Teapot(teapotMesh, wood, 0.5f, (8.0f, 0.0f, 0.0f), false);
+        var teapot = new Teapot(teapotMesh, wood, 0.5f, Vector3.UnitY, (4.0f, 0.0f, 0.0f));
+        var leftTeapot = new Teapot(teapotMesh, wood, 0.5f, -Vector3.UnitZ, (0.0f, 2.0f, -5.0f));
+        var rightTeapot = new Teapot(teapotMesh, wood, 0.5f, Vector3.UnitZ, (0.0f, 2.0f, 5.0f));
         var floor = new Floor(floorMesh, wood);
         _world = new Node(null, shader)
         {
@@ -53,7 +54,7 @@ internal class MyApplication
             {
                 new Node(teapot, shader)
                 {
-                    Children = { new Node(smallTeapot, shader) }
+                    Children = { new Node(leftTeapot, shader), new Node(rightTeapot, shader) }
                 },
                 new Node(floor, shader)
             }
