@@ -9,17 +9,20 @@ internal class Camera
         Forwards,
         Backwards,
         Left,
-        Right
+        Right,
+        Up,
+        Down
     }
 
-    private static readonly Matrix4 YToNegZ = Matrix4.CreateRotationX(-MathHelper.PiOver2);
+    private static readonly Vector3 WorldUp = Vector3.UnitY;
+
     private Vector3 _lookAt;
 
     public Camera(Vector3 position, Vector3 lookAt)
     {
         Position = position;
         _lookAt = lookAt.Normalized();
-        Right = Vector3.Cross(_lookAt, Vector3.UnitY);
+        Right = Vector3.Cross(_lookAt, WorldUp);
     }
 
     public Vector3 Position { get; private set; }
@@ -30,31 +33,13 @@ internal class Camera
         private set
         {
             _lookAt = value.Normalized();
-            Right = Vector3.Cross(_lookAt, Vector3.UnitY);
+            Right = Vector3.Cross(_lookAt, WorldUp);
         }
     }
 
     public Vector3 Right { get; private set; }
 
-    public Matrix4 Transformation()
-    {
-        // var translation = Matrix4.CreateTranslation(-Position);
-        // // We want to rotate `LookAt` to -z-hat ((0, 0, -1)).
-        // // To avoid getting a zero-vector when `LookAt` is parallel to -z-hat, we instead first rotate it to y-hat, and
-        // // then rotate to -z-hat.
-        // // The rotation axis is the cross product of `LookAt` and the goal.
-        // // The angle to rotate is the angle between them.
-        // var rotation =
-        //     YToNegZ
-        //     * Matrix4.CreateFromAxisAngle
-        //     (
-        //         Vector3.Cross(LookAt, Vector3.UnitY),
-        //         Vector3.CalculateAngle(LookAt, Vector3.UnitY)
-        //     );
-        // return translation * rotation;
-
-        return Matrix4.LookAt(Position, Position + LookAt, Vector3.UnitY);
-    }
+    public Matrix4 Transformation => Matrix4.LookAt(Position, Position + LookAt, WorldUp);
 
     public void Move(MoveDirection direction, float speed)
     {
@@ -64,6 +49,8 @@ internal class Camera
             MoveDirection.Backwards => -LookAt,
             MoveDirection.Left => -Right,
             MoveDirection.Right => Right,
+            MoveDirection.Up => WorldUp,
+            MoveDirection.Down => -WorldUp,
             _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null)
         };
 
