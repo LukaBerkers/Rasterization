@@ -30,7 +30,7 @@ public class Node
         var objectToScreen = objectToWorld * worldToScreen;
         _obj?.Mesh.Render(_shader, objectToScreen, objectToWorld, _obj.Texture);
 
-        foreach (var child in Children) child.Render(objectToScreen, objectToWorld);
+        foreach (var child in Children) child.Render(worldToScreen, objectToWorld);
     }
 
     public void AddChild(ISceneObject? obj, Shader shader, List<Node>? children = null)
