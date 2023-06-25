@@ -13,6 +13,9 @@ public class Shader
     public int ProgramId, VsId, FsId;
     public int UniformObjectToScreen;
     public int UniformObjectToWorld;
+    public int UniformAmbientLight;
+    public int UniformLightPosition;
+    public int UniformCameraPosition;
 
     // constructor
     public Shader(string vertexShader, string fragmentShader)
@@ -32,6 +35,9 @@ public class Shader
         InVertexUv = GL.GetAttribLocation(ProgramId, "vertexUV");
         UniformObjectToScreen = GL.GetUniformLocation(ProgramId, "objectToScreen");
         UniformObjectToWorld = GL.GetUniformLocation(ProgramId, "objectToWorld");
+        UniformAmbientLight = GL.GetUniformLocation(ProgramId, "lightColor");
+        UniformLightPosition = GL.GetUniformLocation(ProgramId, "lightPosition");
+        UniformCameraPosition = GL.GetUniformLocation(ProgramId, "cameraPosition");
     }
 
     // loading shaders

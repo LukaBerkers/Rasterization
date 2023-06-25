@@ -4,9 +4,9 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace Rasterization;
 
-internal class MyApplication
+public class MyApplication
 {
-    private readonly Camera _camera;
+    public static Camera _camera; //even van private readonly naar public static gemaakt
     private readonly Stopwatch _timer = new(); // timer for measuring frame duration
     private readonly bool _useRenderTarget = true; // required for post processing
     private Shader? _postProc; // shader to use for post processing
