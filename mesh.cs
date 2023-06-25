@@ -80,8 +80,8 @@ public class Mesh
         // pass transforms to vertex shader
         GL.UniformMatrix4(shader.UniformObjectToScreen, false, ref objectToScreen);
         GL.UniformMatrix4(shader.UniformObjectToWorld, false, ref objectToWorld);
-        GL.Uniform4(shader.UniformAmbientLight, new Vector4(200.0f, 150.0f, 180.0f, 1.0f));
-        GL.Uniform3(shader.UniformLightPosition, new Vector3(1.0f, 1.0f, 12.0f));
+        GL.Uniform4(shader.UniformAmbientLight, MyApplication._light.lightColor);
+        GL.Uniform3(shader.UniformLightPosition, MyApplication._light.lightPosition);
         GL.Uniform3(shader.UniformCameraPosition, MyApplication._camera.Position);
 
         // enable position, normal and uv attribute arrays corresponding to the shader "in" variables

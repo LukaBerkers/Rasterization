@@ -18,12 +18,13 @@ public class MyApplication
 
     // member variables
     public Surface Screen; // background surface for printing etc.
-
+    public static Light _light; 
     // constructor
     public MyApplication(Surface screen)
     {
         Screen = screen;
         _camera = new Camera((0.0f, 6.0f, 8.0f), new Vector3(0.0f, 0.0f, -1.0f));
+        _light = new Light(new Vector3(1.0f, 1.0f, 12.0f), new Vector4(200.0f, 150.0f, 180.0f, 1.0f));
     }
 
     // initialize
