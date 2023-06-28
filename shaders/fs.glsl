@@ -8,6 +8,7 @@ uniform sampler2D diffuseTexture;	// texture sampler
 uniform vec4 lightColor;            // for the ambient light color?
 uniform vec3 lightPosition;          // world space
 uniform vec3 cameraPosition;       
+uniform vec3 viewD;
 
 out vec3 fragPos;
 

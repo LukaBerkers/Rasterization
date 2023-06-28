@@ -16,6 +16,7 @@ public class Shader
     public int UniformAmbientLight;
     public int UniformLightPosition;
     public int UniformCameraPosition;
+    public int UniformViewdir; 
 
     // constructor
     public Shader(string vertexShader, string fragmentShader)
@@ -38,6 +39,7 @@ public class Shader
         UniformAmbientLight = GL.GetUniformLocation(ProgramId, "lightColor");
         UniformLightPosition = GL.GetUniformLocation(ProgramId, "lightPosition");
         UniformCameraPosition = GL.GetUniformLocation(ProgramId, "cameraPosition");
+        
     }
 
     // loading shaders
