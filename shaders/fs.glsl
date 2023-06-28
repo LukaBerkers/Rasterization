@@ -7,10 +7,10 @@ in vec2 uv;                         // fragment uv texture coordinates
 uniform sampler2D diffuseTexture;	// texture sampler
 uniform vec4 lightColor;            // for the ambient light color?
 uniform vec3 lightPosition;          // world space
+uniform vec4 specularLight;
 uniform vec3 cameraPosition;       
 uniform vec3 viewD;
 
-out vec3 fragPos;
 
 // shader output
 out vec4 outputColor;
@@ -23,34 +23,16 @@ void main()
     float attenuation = 1.0 / dot(L, L);
     float NdotL = max(0, dot(normalize(normalWorld.xyz), normalize(L))); 
     vec3 diffuseColor = texture(diffuseTexture, uv).rgb; 
-    outputColor = vec4(lightColor.rgb * diffuseColor * attenuation * NdotL, 1.0);
 
-    float specularStrength = 0.5f;
+    //specular light
+    vec3 R = lightPosition - 2*dot(lightPosition, normalWorld.xyz) * normalWorld.xyz;
+    //float VdotR = max(pow(dot(normalize(viewD), normalize(R)),20), 0);
+    float VdotR = pow(max(dot(normalize(viewD), normalize(R)),0),20);
+    float specualarStrenght = 0.005f;
+    //vec3 specularColor = lightColor.rgb * specularLight.rgb * specualarStrenght;
+    //outputColor = vec4(lightColor.rgb * diffuseColor * attenuation * NdotL, 1.0) + (VdotR * specualarStrenght * specularColor, 1 );
+    outputColor = vec4(lightColor.rgb * diffuseColor * attenuation * NdotL, 1.0) + (VdotR * lightColor * specualarStrenght);
 
-/*    // Calculate lighting for pointlights
-   vec3 CalcPointLight(vec3 lightPosition, vec3 normalWorld, vec4 positionWorld, vec3 cameraPosition, vec4 lightColor) 
-   {
     
-        // Calculate the colour using phong illumination
 
-        // Diffuse component calculation
-        vec3 norm = normalize(normalWorld);
-        vec3 lightDir = normalize(lightPosition - positionWorld.xyz);
-
-        float diff = max(dot(norm, lightDir), 0.0);
-        vec3 diffuse = diff * ObjectMaterial.diffuse * light.diffuse;
-
-        // Specular component calculation
-
-        ...
-
-
-        // Calculate attenuation
-        float distance = length(lightPosition - positionWorld.xyz);
-        float attenuation = 1.0 / dot(distance, distance);
-
-        diffuse *= attenuation;
-
-        return (diffuse + specular); 
-    }*/
 }

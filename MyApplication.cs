@@ -24,7 +24,7 @@ public class MyApplication
     {
         Screen = screen;
         Camera = new Camera((0.0f, 6.0f, 8.0f), new Vector3(0.0f, 0.0f, -1.0f));
-        Light = new Light(new Vector3(1.0f, 1.0f, 12.0f), new Vector4(200.0f, 150.0f, 180.0f, 1.0f));
+        Light = new Light(new Vector3(1.0f, 1.0f, 12.0f), new Vector4(200.0f, 150.0f, 180.0f, 1.0f), new Vector4 (180.0f, 200.0f, 0.0f, 1.0f));
     }
 
     // initialize

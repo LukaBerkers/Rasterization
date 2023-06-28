@@ -86,6 +86,8 @@ public class Mesh
         GL.Uniform4(shader.UniformAmbientLight, _app.Light.LightColor);
         GL.Uniform3(shader.UniformLightPosition, _app.Light.LightPosition);
         GL.Uniform3(shader.UniformCameraPosition, _app.Camera.Position);
+        GL.Uniform3(shader.UniformViewdir, _app.Camera.LookAt);
+        GL.Uniform4(shader.UniformSpecularLight, _app.Light.Specular);
 
         // enable position, normal and uv attribute arrays corresponding to the shader "in" variables
         GL.EnableVertexAttribArray(shader.InVertexPositionObject);
