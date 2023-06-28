@@ -8,6 +8,8 @@ namespace Rasterization;
 // Only triangles and quads with vertex positions, normals, and texture coordinates are supported
 public class Mesh
 {
+    private readonly MyApplication _app;
+
     // data members
     public readonly string Filename; // for improved error reporting
     private int _quadBufferId; // element buffer object (EBO) for quad vertex indices (not in Modern OpenGL)
@@ -18,9 +20,10 @@ public class Mesh
     public ObjVertex[]? Vertices; // vertices (positions and normals in Object Space, and texture coordinates)
 
     // constructor
-    public Mesh(string filename)
+    public Mesh(string filename, MyApplication app)
     {
         Filename = filename;
+        _app = app;
         MeshLoader loader = new();
         loader.Load(this, filename);
     }
@@ -80,9 +83,9 @@ public class Mesh
         // pass transforms to vertex shader
         GL.UniformMatrix4(shader.UniformObjectToScreen, false, ref objectToScreen);
         GL.UniformMatrix4(shader.UniformObjectToWorld, false, ref objectToWorld);
-        GL.Uniform4(shader.UniformAmbientLight, MyApplication._light.lightColor);
-        GL.Uniform3(shader.UniformLightPosition, MyApplication._light.lightPosition);
-        GL.Uniform3(shader.UniformCameraPosition, MyApplication._camera.Position);
+        GL.Uniform4(shader.UniformAmbientLight, _app.Light.LightColor);
+        GL.Uniform3(shader.UniformLightPosition, _app.Light.LightPosition);
+        GL.Uniform3(shader.UniformCameraPosition, _app.Camera.Position);
 
         // enable position, normal and uv attribute arrays corresponding to the shader "in" variables
         GL.EnableVertexAttribArray(shader.InVertexPositionObject);

@@ -6,33 +6,33 @@ namespace Rasterization;
 
 public class MyApplication
 {
-    public static Camera _camera; //even van private readonly naar public static gemaakt
     private readonly Stopwatch _timer = new(); // timer for measuring frame duration
     private readonly bool _useRenderTarget = true; // required for post processing
-    private Shader? _postProc; // shader to use for post processing
 
+    public readonly Camera Camera;
+    public readonly Light Light;
+
+    private Shader? _postProc; // shader to use for post processing
     private ScreenQuad? _quad; // screen filling quad for post processing
     private RenderTarget? _target; // intermediate render target
-
     private Node? _world; // world node with no mesh
 
-    // member variables
     public Surface Screen; // background surface for printing etc.
-    public static Light _light; 
+
     // constructor
     public MyApplication(Surface screen)
     {
         Screen = screen;
-        _camera = new Camera((0.0f, 6.0f, 8.0f), new Vector3(0.0f, 0.0f, -1.0f));
-        _light = new Light(new Vector3(1.0f, 1.0f, 12.0f), new Vector4(200.0f, 150.0f, 180.0f, 1.0f));
+        Camera = new Camera((0.0f, 6.0f, 8.0f), new Vector3(0.0f, 0.0f, -1.0f));
+        Light = new Light(new Vector3(1.0f, 1.0f, 12.0f), new Vector4(200.0f, 150.0f, 180.0f, 1.0f));
     }
 
     // initialize
     public void Init()
     {
         // load teapot
-        var teapotMesh = new Mesh("../../../assets/teapot.obj");
-        var floorMesh = new Mesh("../../../assets/floor.obj");
+        var teapotMesh = new Mesh("../../../assets/teapot.obj", this);
+        var floorMesh = new Mesh("../../../assets/floor.obj", this);
         // initialize stopwatch
         _timer.Reset();
         _timer.Start();
@@ -88,9 +88,9 @@ public class MyApplication
         else if (keyboardState[Keys.LeftShift] || keyboardState[Keys.RightShift])
             direction = Camera.MoveDirection.Down;
 
-        if (direction.HasValue) _camera.Move((Camera.MoveDirection)direction, moveSpeed);
-        _camera.Pan(mouseDelta.X * rotateSpeed);
-        _camera.Tilt(mouseDelta.Y * rotateSpeed);
+        if (direction.HasValue) Camera.Move((Camera.MoveDirection)direction, moveSpeed);
+        Camera.Pan(mouseDelta.X * rotateSpeed);
+        Camera.Tilt(mouseDelta.Y * rotateSpeed);
     }
 
     // tick for OpenGL rendering code
@@ -105,7 +105,7 @@ public class MyApplication
         _world?.Update(frameDuration);
 
         // prepare matrix for vertex shader
-        var worldToCamera = _camera.Transformation;
+        var worldToCamera = Camera.Transformation;
         var cameraToScreen = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(60.0f),
             (float)Screen.Width / Screen.Height, .1f, 1000);
 
