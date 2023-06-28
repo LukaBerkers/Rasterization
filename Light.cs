@@ -1,20 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using OpenTK.Mathematics;
-using System.Text;
-using System.Threading.Tasks;
+﻿using OpenTK.Mathematics;
 
-namespace Rasterization
+namespace Rasterization;
+
+public class Light
 {
-    public class Light
+    public Vector4 LightColor;
+    public Vector3 LightPosition;
+
+    public Light(Vector3 position, Vector4 color)
     {
-        public Vector3 lightPosition;
-        public Vector4 lightColor;
-        public Light(Vector3 position, Vector4 color) 
-        {
-            this.lightPosition = position;
-            this.lightColor = color;
-        }
+        LightPosition = position;
+        LightColor = color;
     }
 }
