@@ -7,7 +7,9 @@ in vec2 uv;                         // fragment uv texture coordinates
 uniform sampler2D diffuseTexture;	// texture sampler
 uniform vec4 lightColor;            // for the ambient light color?
 uniform vec3 lightPosition;          // world space
-uniform vec3 cameraPosition  ;       // 
+uniform vec3 cameraPosition;       
+
+out vec3 fragPos;
 
 // shader output
 out vec4 outputColor;
@@ -22,7 +24,7 @@ void main()
     vec3 diffuseColor = texture(diffuseTexture, uv).rgb; 
     outputColor = vec4(lightColor.rgb * diffuseColor * attenuation * NdotL, 1.0);
 
-
+    float specularStrength = 0.5f;
 
 /*    // Calculate lighting for pointlights
    vec3 CalcPointLight(vec3 lightPosition, vec3 normalWorld, vec4 positionWorld, vec3 cameraPosition, vec4 lightColor) 
