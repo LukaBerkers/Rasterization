@@ -23,7 +23,7 @@ internal class MyApplication
     public MyApplication(Surface screen)
     {
         Screen = screen;
-        _camera = new Camera((0.0f, 6.0f, 8.0f), new Vector3(0.0f, 0.0f, -1.0f));
+        _camera = new Camera((0.0f, 6.0f, 8.0f), -Vector3.UnitZ, 0.1f, 1000.0f);
     }
 
     // initialize
@@ -105,8 +105,13 @@ internal class MyApplication
 
         // prepare matrix for vertex shader
         var worldToCamera = _camera.Transformation;
-        var cameraToScreen = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(60.0f),
-            (float)Screen.Width / Screen.Height, .1f, 1000);
+        var cameraToScreen = Matrix4.CreatePerspectiveFieldOfView
+        (
+            MathHelper.DegreesToRadians(60.0f),
+            (float)Screen.Width / Screen.Height,
+            _camera.Frustum.NearDepth,
+            _camera.Frustum.FarDepth
+        );
 
         if (_useRenderTarget && _target != null && _quad != null)
         {

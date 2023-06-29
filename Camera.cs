@@ -14,18 +14,30 @@ internal class Camera
         Down
     }
 
-    private static readonly Vector3 WorldUp = Vector3.UnitY;
-
     private Vector3 _lookAt;
+    private Vector3 _position;
 
-    public Camera(Vector3 position, Vector3 lookAt)
+    public Camera(Vector3 position, Vector3 lookAt, float nearPlaneDepth, float farPlaneDepth)
     {
-        Position = position;
+        _position = position;
         _lookAt = lookAt.Normalized();
         Right = Vector3.Cross(_lookAt, WorldUp);
+        Frustum = new Frustum(_position, _lookAt, WorldUp, nearPlaneDepth, farPlaneDepth);
     }
 
-    public Vector3 Position { get; private set; }
+    public Vector3 WorldUp => Vector3.UnitY;
+
+    public Frustum Frustum { get; private set; }
+
+    public Vector3 Position
+    {
+        get => _position;
+        private set
+        {
+            _position = value;
+            RecomputeFrustum();
+        }
+    }
 
     public Vector3 LookAt
     {
@@ -33,7 +45,8 @@ internal class Camera
         private set
         {
             _lookAt = value.Normalized();
-            Right = Vector3.Cross(_lookAt, WorldUp);
+            Right = Vector3.Cross(LookAt, WorldUp);
+            RecomputeFrustum();
         }
     }
 
@@ -65,5 +78,10 @@ internal class Camera
     public void Tilt(float value)
     {
         LookAt = Matrix3.CreateFromAxisAngle(Right, value) * LookAt;
+    }
+
+    private void RecomputeFrustum()
+    {
+        Frustum = new Frustum(Position, LookAt, WorldUp, Frustum.NearDepth, Frustum.FarDepth);
     }
 }
