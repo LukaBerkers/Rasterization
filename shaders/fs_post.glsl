@@ -15,7 +15,7 @@ out vec3 outputColor;
 void main()
 {
 	// retrieve input pixel and for Chrome Abberation
-	float r = texture(pixels, uv + vec2(0.009f,0.003)).r;
+	float r = texture(pixels, uv + vec2(0.009f,0.003f)).r;
 	float g = texture(pixels, uv).g;
 	float b = texture(pixels, uv - vec2(0.009f,0)).b;
 	outputColor = vec3(r,g,b);
