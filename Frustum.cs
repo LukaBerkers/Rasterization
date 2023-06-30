@@ -4,7 +4,7 @@ namespace Rasterization;
 
 // Partially based on https://learnopengl.com/Guest-Articles/2021/Scene/Frustum-Culling
 
-internal class Frustum
+public class Frustum
 {
     public readonly float NearDepth;
     public readonly float FarDepth;
@@ -37,7 +37,7 @@ internal class Frustum
     }
 }
 
-internal readonly struct Plane
+public readonly struct Plane
 {
     public readonly Vector3 Normal;
     public readonly float DistanceToOrigin;

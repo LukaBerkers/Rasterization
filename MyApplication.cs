@@ -119,7 +119,7 @@ internal class MyApplication
             _target.Bind();
 
             // render scene to render target
-            _world?.Render(worldToCamera * cameraToScreen, Matrix4.Identity);
+            _world?.Render(worldToCamera * cameraToScreen, Matrix4.Identity, _camera.Frustum);
 
             // render quad
             _target.Unbind();
@@ -129,7 +129,7 @@ internal class MyApplication
         else
         {
             // render scene directly to the screen
-            _world?.Render(worldToCamera * cameraToScreen, Matrix4.Identity);
+            _world?.Render(worldToCamera * cameraToScreen, Matrix4.Identity, _camera.Frustum);
         }
     }
 }

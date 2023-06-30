@@ -24,15 +24,23 @@ public class Node
         foreach (var child in Children) child.Update(frameDuration);
     }
 
-    public void Render(Matrix4 worldToScreen, Matrix4 parentToWorld)
+    public void Render(Matrix4 worldToScreen, Matrix4 parentToWorld, Frustum frustum)
     {
-        var objectToParent = _obj?.ObjectTransformation ?? Matrix4.Identity;
-        var objectToWorld = objectToParent * parentToWorld;
-        var objectToScreen = objectToWorld * worldToScreen;
-        
-        Console.Error.WriteLine($"Render: {_debugName}");
-        _obj?.Mesh.Render(_shader, objectToScreen, objectToWorld, _obj.Texture);
+        Matrix4 objectToWorld;
 
-        foreach (var child in Children) child.Render(worldToScreen, objectToWorld);
+        if (_obj is not null)
+        {
+            objectToWorld = _obj.ObjectTransformation * parentToWorld;
+
+            var objectToScreen = objectToWorld * worldToScreen;
+            Console.Error.WriteLine($"Render: {_debugName}");
+            _obj.Mesh.Render(_shader, objectToScreen, objectToWorld, _obj.Texture);
+        }
+        else
+        {
+            objectToWorld = parentToWorld;
+        }
+
+        foreach (var child in Children) child.Render(worldToScreen, objectToWorld, frustum);
     }
 }
