@@ -57,4 +57,9 @@ public readonly struct Plane
         Normal = normal;
         DistanceToOrigin = Vector3.Dot(Normal, pointOnPlane);
     }
+
+    public float SignedDistanceToPoint(Vector3 point)
+    {
+        return Vector3.Dot(Normal, point) - DistanceToOrigin;
+    }
 }
