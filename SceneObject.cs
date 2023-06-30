@@ -8,7 +8,8 @@ public interface ISceneObject
     public Texture Texture { get; }
     public Matrix4 ObjectTransformation { get; }
     public void Update(float frameDuration);
-    public bool IsOnOrInFrontOfPlane(Plane plane);
+    public bool IsBehindPlane(Plane plane);
+    public bool IsOutsideFrustum(Frustum frustum);
 }
 
 public class Teapot : ISceneObject
@@ -40,7 +41,7 @@ public class Teapot : ISceneObject
     }
 
     // Assumes the specific teapot texture
-    private float Radius => 10 * _scale;
+    private float Radius => 11.5f * _scale;
 
     public Mesh Mesh { get; }
     public Texture Texture { get; }
@@ -58,16 +59,28 @@ public class Teapot : ISceneObject
         if (_angle > 2 * MathF.PI) _angle -= 2 * MathF.PI;
     }
 
-    public bool IsOnOrInFrontOfPlane(Plane plane)
+    public bool IsBehindPlane(Plane plane)
     {
-        return plane.SignedDistanceToPoint(_position) > -Radius;
+        return plane.SignedDistanceToPoint(_position) < -Radius;
+    }
+
+    public bool IsOutsideFrustum(Frustum frustum)
+    {
+        return
+            IsBehindPlane(frustum.Near);
+        // || IsBehindPlane(frustum.Left)
+        // || IsBehindPlane(frustum.Right)
+        // || IsBehindPlane(frustum.Bottom)
+        // || IsBehindPlane(frustum.Top)
+        // || IsBehindPlane(frustum.Far);
     }
 }
 
 public class Floor : ISceneObject
 {
     // Needs to be changed if the floor can be at different positions
-    private const float Radius = 8;
+    private const float Radius = 11.5f * Scale;
+    private const float Scale = 4.0f;
 
     public Floor(Mesh mesh, Texture texture)
     {
@@ -79,14 +92,25 @@ public class Floor : ISceneObject
 
     public Mesh Mesh { get; }
     public Texture Texture { get; }
-    public Matrix4 ObjectTransformation => Matrix4.CreateScale(4.0f);
+    public Matrix4 ObjectTransformation => Matrix4.CreateScale(Scale);
 
     public void Update(float frameDuration)
     {
     }
 
-    public bool IsOnOrInFrontOfPlane(Plane plane)
+    public bool IsBehindPlane(Plane plane)
     {
-        return plane.SignedDistanceToPoint(Position) > -Radius;
+        return plane.SignedDistanceToPoint(Position) < -Radius;
+    }
+
+    public bool IsOutsideFrustum(Frustum frustum)
+    {
+        return
+            IsBehindPlane(frustum.Near)
+            || IsBehindPlane(frustum.Left)
+            || IsBehindPlane(frustum.Right)
+            || IsBehindPlane(frustum.Bottom)
+            || IsBehindPlane(frustum.Top);
+        // || IsBehindPlane(frustum.Far);
     }
 }

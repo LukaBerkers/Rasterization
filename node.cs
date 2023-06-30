@@ -30,9 +30,11 @@ public class Node
 
         if (_obj is not null)
         {
+            if (_obj.IsOutsideFrustum(frustum)) return;
+            
             objectToWorld = _obj.ObjectTransformation * parentToWorld;
-
             var objectToScreen = objectToWorld * worldToScreen;
+            
             Console.Error.WriteLine($"Render: {_debugName}");
             _obj.Mesh.Render(_shader, objectToScreen, objectToWorld, _obj.Texture);
         }

@@ -113,6 +113,10 @@ internal class MyApplication
             _camera.Frustum.FarDepth
         );
 
+        Console.Error.WriteLine(_camera.Frustum.Near.DistanceToOrigin);
+        Console.Error.WriteLine(_camera.Frustum.Far.DistanceToOrigin);
+        Console.Error.WriteLine();
+
         if (_useRenderTarget && _target != null && _quad != null)
         {
             // enable render target
