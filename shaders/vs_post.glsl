@@ -18,5 +18,5 @@ void main()
 	// pass the uv coordinate
 	uv = vertexUV;
 
-	positionFromBottomLeft = 0.5 * vertexPositionObject.xy + 0.5;
+	positionFromBottomLeft = 0.5 * vertexPositionObject.xy;
 }

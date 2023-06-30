@@ -4,34 +4,35 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace Rasterization;
 
-internal class MyApplication
+public class MyApplication
 {
-    private readonly Camera _camera;
     private readonly Stopwatch _timer = new(); // timer for measuring frame duration
     private readonly bool _useRenderTarget = true; // required for post processing
-    private Shader? _postProc; // shader to use for post processing
 
+    public readonly Camera Camera;
+    public readonly Light Light;
+
+    private Shader? _postProc; // shader to use for post processing
     private ScreenQuad? _quad; // screen filling quad for post processing
     private RenderTarget? _target; // intermediate render target
-
     private Node? _world; // world node with no mesh
 
-    // member variables
     public Surface Screen; // background surface for printing etc.
 
     // constructor
     public MyApplication(Surface screen)
     {
         Screen = screen;
-        _camera = new Camera((0.0f, 6.0f, 8.0f), -Vector3.UnitZ, 0.1f, 1000.0f);
+        Camera = new Camera((0.0f, 6.0f, 8.0f), -Vector3.UnitZ, 0.1f, 1000.0f);
+        Light = new Light(new Vector3(1.0f, 1.0f, 12.0f), new Vector4(200.0f, 150.0f, 180.0f, 1.0f), new Vector4 (180.0f, 200.0f, 0.0f, 1.0f));
     }
 
     // initialize
     public void Init()
     {
         // load teapot
-        var teapotMesh = new Mesh("../../../assets/teapot.obj");
-        var floorMesh = new Mesh("../../../assets/floor.obj");
+        var teapotMesh = new Mesh("../../../assets/teapot.obj", this);
+        var floorMesh = new Mesh("../../../assets/floor.obj", this);
         // initialize stopwatch
         _timer.Reset();
         _timer.Start();
@@ -87,9 +88,9 @@ internal class MyApplication
         else if (keyboardState[Keys.LeftShift] || keyboardState[Keys.RightShift])
             direction = Camera.MoveDirection.Down;
 
-        if (direction.HasValue) _camera.Move((Camera.MoveDirection)direction, moveSpeed);
-        _camera.Pan(mouseDelta.X * rotateSpeed);
-        _camera.Tilt(mouseDelta.Y * rotateSpeed);
+        if (direction.HasValue) Camera.Move((Camera.MoveDirection)direction, moveSpeed);
+        Camera.Pan(mouseDelta.X * rotateSpeed);
+        Camera.Tilt(mouseDelta.Y * rotateSpeed);
     }
 
     // tick for OpenGL rendering code
@@ -104,17 +105,15 @@ internal class MyApplication
         _world?.Update(frameDuration);
 
         // prepare matrix for vertex shader
-        var worldToCamera = _camera.Transformation;
+        var worldToCamera = Camera.Transformation;
         var cameraToScreen = Matrix4.CreatePerspectiveFieldOfView
         (
             MathHelper.DegreesToRadians(60.0f),
             (float)Screen.Width / Screen.Height,
-            _camera.Frustum.NearDepth,
-            _camera.Frustum.FarDepth
+            Camera.Frustum.NearDepth,
+            Camera.Frustum.FarDepth
         );
 
-        Console.Error.WriteLine(_camera.Frustum.Near.DistanceToOrigin);
-        Console.Error.WriteLine(_camera.Frustum.Far.DistanceToOrigin);
         Console.Error.WriteLine();
 
         if (_useRenderTarget && _target != null && _quad != null)
@@ -123,7 +122,7 @@ internal class MyApplication
             _target.Bind();
 
             // render scene to render target
-            _world?.Render(worldToCamera * cameraToScreen, Matrix4.Identity, _camera.Frustum);
+            _world?.Render(worldToCamera * cameraToScreen, Matrix4.Identity, Camera.Frustum);
 
             // render quad
             _target.Unbind();
@@ -133,7 +132,7 @@ internal class MyApplication
         else
         {
             // render scene directly to the screen
-            _world?.Render(worldToCamera * cameraToScreen, Matrix4.Identity, _camera.Frustum);
+            _world?.Render(worldToCamera * cameraToScreen, Matrix4.Identity, Camera.Frustum);
         }
     }
 }

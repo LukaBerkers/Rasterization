@@ -2,7 +2,7 @@ using OpenTK.Mathematics;
 
 namespace Rasterization;
 
-internal class Camera
+public class Camera
 {
     public enum MoveDirection
     {
